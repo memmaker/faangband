@@ -1151,6 +1151,12 @@ static errr Term_text_gcu(int x, int y, int n, int a, const wchar_t *s) {
 		/* the lower 7 bits of the attribute indicate the fg/bg */
 		int attr = a & 127;
 
+		/*
+		 * The tables only hold the basic colours; the knowledge menus'
+		 * visual editor can pick any attr up to MAX_COLORS - 1.
+		 */
+		if (attr >= BASIC_COLORS) attr %= BASIC_COLORS;
+
 		/* the high bit of the attribute indicates a reversed fg/bg */
 		bool reversed = a > 127;
 
