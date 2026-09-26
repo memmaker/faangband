@@ -80,7 +80,7 @@ parts.append(section('credits', 'Credits', info['Credits']))
 # RVIP W1: Source and changes
 parts.append(section('version', 'About this version',
              '<ul><li>Based on <strong>FAangband 2.0.1</strong> (Nick McConnell; Angband 4.2 code base), '
-             f'upstream <code>master</code> at commit <code>{BASE[:9]}</code>.</li>'
+             f'upstream <code>main</code> at commit <code>{BASE[:9]}</code>.</li>'
              f'<li>Original source: <a href="https://github.com/NickMcConnell/FAangband/tree/{BASE}" target="_blank" rel="noopener">NickMcConnell/FAangband at {BASE[:9]}</a></li>'
              '<li>Our changes (auto-explore, stair walking, command menu, inventory item actions, tile stand-ins, sound, web build): '
              f'<a href="https://github.com/memmaker/faangband/compare/{BASE[:9]}...main" target="_blank" rel="noopener">memmaker/faangband</a></li></ul>'))
