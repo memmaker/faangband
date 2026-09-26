@@ -1478,3 +1478,174 @@ GF:GRAVITY | INERTIA:135:0x82:0xB7
 
 # Load the flavored objects
 %:flvr-shb.prf
+
+# --- RVIP stand-ins (web/mkgraf-standins.py) ---
+monster:maddened weasel:0x8D:0x98  # as giant white mouse
+monster:The Ickiness:0x8E:0xD2  # as green icky thing
+monster:beastmaster:0x8D:0x84  # as drúadan mage
+monster:skeleton serpent:0x94:0x9E  # as skeleton human
+monster:skeleton lord:0x94:0xBB  # as skeleton kobold
+monster:floating skull:0x94:0x9E  # as skeleton human
+monster:apparition of hunger:0x94:0x81  # as banshee
+monster:gazing eye:0x90:0x89  # as evil eye
+monster:halfling slinger:0x8D:0x87  # as dark dwarven lord
+monster:corvid of shadow:0x93:0xA6  # as blood falcon
+monster:dark naga:0x9D:0x9D  # as spirit naga
+monster:animist:0x84:0x95  # as black knight
+monster:nightstalker:0x90:0xB7  # as sabre-tooth tiger
+monster:giant paladin:0x9D:0xA6  # as fire giant
+monster:shapeshifter:0x84:0x99  # as master thief
+monster:falcon of Ered Engrin:0x9D:0xCC  # as giant roc
+monster:venom mold:0x8E:0xCA  # as death mold
+monster:swamp quylthulg:0x93:0x82  # as rotting quylthulg
+monster:gnawing bug:0x8F:0xAE  # as giant firefly
+monster:blade of slaughter:0x8F:0xE3  # as chest mimic
+monster:giant chieftain:0x9D:0xDE  # as cyclops
+monster:stone warden:0x92:0xA3  # as xaren
+monster:The Phantom of Eilinel:0x9F:0xE9  # as shadow
+monster:storm troll:0x9D:0xD5  # as Rogrog the Black Troll
+monster:lord of misrule:0x9F:0xA4  # as grand master mystic
+monster:living dungeon:0x92:0xA3  # as xaren
+monster:The Defiler:0x93:0x93  # as killer white beetle
+monster:Errata the Mage:0x9F:0xA4  # as grand master mystic
+monster:mimic (large jeweled chest):0x8F:0xE3  # as chest mimic
+monster:winged dragon of power:0x9F:0xC1  # as Ancalagon the Black
+monster:Skeleton:0x94:0xBB  # as skeleton kobold
+monster:Zombie:0x94:0x99  # as zombified human
+monster:Spirit:0x94:0x94  # as moaning spirit
+monster:Mummy:0x91:0xB1  # as mummified human
+monster:Wight:0x94:0x88  # as grave wight
+monster:Deathlord:0x9F:0xB6  # as nightwalker
+object:sword:& Valinorean Sword~:0x8A:0x88  # as short sword
+object:hafted:& Magestaff~:0x8A:0x95  # as quarterstaff
+object:hafted:& Storm Hammer~:0x8B:0xAB  # as throwing hammer
+object:polearm:& Dart~:0x8B:0xBF  # as throwing axe
+object:polearm:& Thrusting Spear~:0x8A:0x9C  # as spear
+object:crown:& Silver Crown~:0x80:0x8F  # as iron crown
+object:cloak:& Shadow Cloak~:0x80:0x81  # as cloak
+object:shield:& Body Shield~:0x80:0x9C  # as wicker shield
+object:shield:& Shield of Deflection~:0x80:0x9C  # as wicker shield
+object:ring:Steel:0x85:0xBF  # as ring
+object:ring:Pewter:0x85:0xBF  # as ring
+object:ring:Galvorn:0x85:0xBF  # as ring
+object:ring:Brass:0x85:0xBF  # as ring
+object:ring:Bronze:0x85:0xB9  # as flavour bronze ring
+object:ring:Copper:0x85:0xBF  # as ring
+object:ring:Silver:0x85:0xBC  # as flavour silver ring
+object:ring:Gold:0x85:0xBA  # as flavour gold ring
+object:ring:Adamantite:0x85:0xC1  # as flavour adamantite ring
+object:ring:Mithril:0x85:0xBF  # as ring
+object:amulet:Chalcedony:0x85:0xA6  # as amulet
+object:amulet:Malachite:0x85:0xA6  # as amulet
+object:amulet:Opal:0x85:0xA6  # as amulet
+object:amulet:Garnet:0x85:0xA6  # as amulet
+object:amulet:Pearl:0x85:0xA6  # as amulet
+object:amulet:Amethyst:0x85:0xA6  # as amulet
+object:amulet:Sapphire:0x85:0xA6  # as amulet
+object:amulet:Ruby:0x85:0xC6  # as flavour ruby amulet
+object:amulet:Emerald:0x85:0xA6  # as amulet
+object:amulet:Diamond:0x85:0xA6  # as amulet
+object:chest:& Small jeweled chest~:0x87:0x80  # as small wooden chest
+object:chest:& Large jeweled chest~:0x87:0x81  # as large wooden chest
+feat:Travelling Merchant:*:0x99:0x83  # as General Store
+feat:secret door:torch:0x96:0xCB  # as granite wall
+feat:secret door:los:0x96:0xCB  # as granite wall
+feat:secret door:lit:0x96:0xCC  # as granite wall
+feat:secret door:dark:0x96:0xCD  # as granite wall
+feat:easy path north:torch:0x9A:0xEE  # as up staircase
+feat:easy path north:los:0x9A:0xEE  # as up staircase
+feat:easy path north:lit:0x9A:0xEF  # as up staircase
+feat:easy path north:dark:0x9A:0xF0  # as up staircase
+feat:hard path north:torch:0x9A:0xF1  # as down staircase
+feat:hard path north:los:0x9A:0xF1  # as down staircase
+feat:hard path north:lit:0x9A:0xF2  # as down staircase
+feat:hard path north:dark:0x9A:0xF3  # as down staircase
+feat:easy path east:torch:0x9A:0xEE  # as up staircase
+feat:easy path east:los:0x9A:0xEE  # as up staircase
+feat:easy path east:lit:0x9A:0xEF  # as up staircase
+feat:easy path east:dark:0x9A:0xF0  # as up staircase
+feat:hard path east:torch:0x9A:0xF1  # as down staircase
+feat:hard path east:los:0x9A:0xF1  # as down staircase
+feat:hard path east:lit:0x9A:0xF2  # as down staircase
+feat:hard path east:dark:0x9A:0xF3  # as down staircase
+feat:easy path south:torch:0x9A:0xEE  # as up staircase
+feat:easy path south:los:0x9A:0xEE  # as up staircase
+feat:easy path south:lit:0x9A:0xEF  # as up staircase
+feat:easy path south:dark:0x9A:0xF0  # as up staircase
+feat:hard path south:torch:0x9A:0xF1  # as down staircase
+feat:hard path south:los:0x9A:0xF1  # as down staircase
+feat:hard path south:lit:0x9A:0xF2  # as down staircase
+feat:hard path south:dark:0x9A:0xF3  # as down staircase
+feat:easy path west:torch:0x9A:0xEE  # as up staircase
+feat:easy path west:los:0x9A:0xEE  # as up staircase
+feat:easy path west:lit:0x9A:0xEF  # as up staircase
+feat:easy path west:dark:0x9A:0xF0  # as up staircase
+feat:hard path west:torch:0x9A:0xF1  # as down staircase
+feat:hard path west:los:0x9A:0xF1  # as down staircase
+feat:hard path west:lit:0x9A:0xF2  # as down staircase
+feat:hard path west:dark:0x9A:0xF3  # as down staircase
+feat:water:*:0x98:0xDF
+feat:lowland trees:*:0x9F:0x83
+feat:highland trees:*:0x9F:0x83
+feat:sand dune:*:0x88:0xBF  # as pile of passable rubble
+trap:falling branch:torch:0x8E:0xE8  # as rock fall trap
+trap:falling branch:los:0x8E:0xE8  # as rock fall trap
+trap:falling branch:lit:0x8E:0xE9  # as rock fall trap
+trap:falling branch:dark:0x8E:0xEA  # as rock fall trap
+trap:basic trap:torch:0x8C:0xED  # as decoy
+trap:basic trap:los:0x8C:0xED  # as decoy
+trap:basic trap:lit:0x8C:0xEE  # as decoy
+trap:basic trap:dark:0x8C:0xEF  # as decoy
+trap:sturdy trap:torch:0x8C:0xED  # as decoy
+trap:sturdy trap:los:0x8C:0xED  # as decoy
+trap:sturdy trap:lit:0x8C:0xEE  # as decoy
+trap:sturdy trap:dark:0x8C:0xEF  # as decoy
+trap:netted trap:torch:0x8C:0xED  # as decoy
+trap:netted trap:los:0x8C:0xED  # as decoy
+trap:netted trap:lit:0x8C:0xEE  # as decoy
+trap:netted trap:dark:0x8C:0xEF  # as decoy
+trap:confusion trap:torch:0x8C:0xED  # as decoy
+trap:confusion trap:los:0x8C:0xED  # as decoy
+trap:confusion trap:lit:0x8C:0xEE  # as decoy
+trap:confusion trap:dark:0x8C:0xEF  # as decoy
+trap:poison trap:torch:0x8C:0xED  # as decoy
+trap:poison trap:los:0x8C:0xED  # as decoy
+trap:poison trap:lit:0x8C:0xEE  # as decoy
+trap:poison trap:dark:0x8C:0xEF  # as decoy
+trap:immaterial trap:torch:0x8C:0xED  # as decoy
+trap:immaterial trap:los:0x8C:0xED  # as decoy
+trap:immaterial trap:lit:0x8C:0xEE  # as decoy
+trap:immaterial trap:dark:0x8C:0xEF  # as decoy
+trap:electric trap:torch:0x8C:0xED  # as decoy
+trap:electric trap:los:0x8C:0xED  # as decoy
+trap:electric trap:lit:0x8C:0xEE  # as decoy
+trap:electric trap:dark:0x8C:0xEF  # as decoy
+trap:explosive trap:torch:0x8C:0xED  # as decoy
+trap:explosive trap:los:0x8C:0xED  # as decoy
+trap:explosive trap:lit:0x8C:0xEE  # as decoy
+trap:explosive trap:dark:0x8C:0xEF  # as decoy
+trap:portal trap:torch:0x8C:0xED  # as decoy
+trap:portal trap:los:0x8C:0xED  # as decoy
+trap:portal trap:lit:0x8C:0xEE  # as decoy
+trap:portal trap:dark:0x8C:0xEF  # as decoy
+trap:stasis trap:torch:0x8C:0xED  # as decoy
+trap:stasis trap:los:0x8C:0xED  # as decoy
+trap:stasis trap:lit:0x8C:0xEE  # as decoy
+trap:stasis trap:dark:0x8C:0xEF  # as decoy
+trap:drain life trap:torch:0x8C:0xED  # as decoy
+trap:drain life trap:los:0x8C:0xED  # as decoy
+trap:drain life trap:lit:0x8C:0xEE  # as decoy
+trap:drain life trap:dark:0x8C:0xEF  # as decoy
+trap:unmagic trap:torch:0x8C:0xED  # as decoy
+trap:unmagic trap:los:0x8C:0xED  # as decoy
+trap:unmagic trap:lit:0x8C:0xEE  # as decoy
+trap:unmagic trap:dark:0x8C:0xEF  # as decoy
+trap:dispelling trap:torch:0x8C:0xED  # as decoy
+trap:dispelling trap:los:0x8C:0xED  # as decoy
+trap:dispelling trap:lit:0x8C:0xEE  # as decoy
+trap:dispelling trap:dark:0x8C:0xEF  # as decoy
+trap:banishment trap:torch:0x8C:0xED  # as decoy
+trap:banishment trap:los:0x8C:0xED  # as decoy
+trap:banishment trap:lit:0x8C:0xEE  # as decoy
+trap:banishment trap:dark:0x8C:0xEF  # as decoy
+# --- end RVIP stand-ins ---

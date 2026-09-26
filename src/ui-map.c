@@ -197,6 +197,13 @@ void grid_data_as_text(struct grid_data *g, int *ap, wchar_t *cp, int *tap,
 	(*tap) = a;
 	(*tcp) = c;
 
+	/* RVIP: tree tiles are cut-outs; draw them over grass */
+	if (use_graphics != GRAPHICS_NONE && tf_has(feat->flags, TF_TREE)
+			&& FEAT_GRASS) {
+		(*tap) = feat_x_attr[g->lighting][FEAT_GRASS];
+		(*tcp) = feat_x_char[g->lighting][FEAT_GRASS];
+	}
+
 	/* There is a trap in this grid, and we are not hallucinating */
 	if (g->trap && (!g->hallucinate)) {
 	    /* Change graphics to indicate visible traps, skip objects if a web */

@@ -73,6 +73,6 @@ for fname, kind in (('monster.txt', 'monster'), ('object.txt', 'object'), ('terr
     ids = [e for e in entries(fname, kind) if e[-1] not in ('<curse object>', 'no trap', 'door lock', 'empty space')]
     ok = [e for e in ids if maps.get(e) or (kind == 'object' and e[1] in flav_tvals)]
     miss = [':'.join(map(str, e[1:])) for e in ids if e not in ok]
-    print(f'{fname}: {len(ok)}/{len(ids)}  missing ({len(miss)}): {miss[:40]}{" ..." if len(miss) > 40 else ""}')
+    print(f'{fname}: {len(ok)}/{len(ids)}  missing ({len(miss)}): {miss}')
     tot += len(ids); hit += len(ok)
 print(f'total: {hit}/{tot} = {100 * hit / tot:.1f}%')
