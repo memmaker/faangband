@@ -508,3 +508,12 @@ sound:IDENT_EGO:id_ego_whoa id_ego_woohoo id_ego_yeah id_ego_yeah2 id_ego_yes
 # Identify a good artifact.
 sound:IDENT_ART:id_good_hey id_good_hey2 id_good_hmm id_good_huh id_good_ooh id_good_ooo id_good_wow
 
+
+# RVIP: events FAangband adds that had no line (samples from the same pack;
+# WALK stays silent on purpose: one sample per step is noise)
+sound:BIRTH:plm_levelup
+sound:BR_ICE:mco_attack_breath
+sound:BR_STORM:mco_attack_breath
+sound:BR_DRAGONFIRE:mco_attack_breath
+sound:BR_HELLFIRE:mco_attack_breath
+sound:SCRAMBLE:pls_tone_headstock

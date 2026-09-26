@@ -373,20 +373,30 @@
 	 * its own sound events (MSG_* names); lib/customize/sound.prf maps them
 	 * to the Dubtrain samples in lib/sounds.
 	 */
-	var audio = { sound: false, music: false, cfg: {}, cache: {}, depth: -1,
-		song: new Audio('music/new_town.ogg') };
-	audio.song.loop = true;
-	fetch('sounds/sound.prf').then(function (r) { return r.text(); }).then(function (t) {
-		t.split('\n').forEach(function (l) {
-			/* sound:<MSG name>:<sample> <sample>...; the game sends lower case */
-			var m = /^sound:(\w+):(.+)$/.exec(l.trim());
-			if (m && m[2].trim()) audio.cfg[m[1].toLowerCase()] = m[2].trim().split(/\s+/);
-		});
-	});
+	var audio = { sound: false, music: false, cfg: null, cache: {}, depth: -1,
+		song: null };
+
+	/* sound.prf comes with the preload (lib/customize): read it from the
+	 * game's FS on first use, never fetch() a .prf (RVIP A6b) */
+	function loadSoundCfg() {
+		if (audio.cfg) return audio.cfg;
+		audio.cfg = {};
+		try {
+			var t = Module.FS.readFile(ROOT + '/lib/customize/sound.prf', { encoding: 'utf8' });
+			t.split('\n').forEach(function (l) {
+				/* sound:<MSG name>:<sample> <sample>...; the game sends lower case */
+				var m = /^sound:(\w+):(.+)$/.exec(l.trim());
+				if (m && m[2].trim()) audio.cfg[m[1].toLowerCase()] = m[2].trim().split(/\s+/);
+			});
+		} catch (e) { console.warn('[faangband] no sound.prf', e); }
+		return audio.cfg;
+	}
 
 	function updateMusic() {
-		if (audio.music && audio.depth === 0) audio.song.play().catch(function () { });
-		else audio.song.pause();
+		if (audio.music && audio.depth === 0) {
+			if (!audio.song) { audio.song = new Audio('music/new_town.ogg'); audio.song.loop = true; }
+			audio.song.play().catch(function () { });
+		} else if (audio.song) audio.song.pause();
 	}
 
 	function toggleAudio(kind) {
@@ -404,7 +414,7 @@
 
 	var ta = {
 		sound: function (name) {
-			var files = audio.sound && audio.cfg[name];
+			var files = audio.sound && loadSoundCfg()[name];
 			if (!files) return;
 			var f = files[Math.floor(Math.random() * files.length)];
 			if (!audio.cache[f]) audio.cache[f] = new Audio('sounds/' + f + '.mp3');

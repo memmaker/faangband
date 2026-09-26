@@ -279,4 +279,42 @@ additions: same-set stand-ins); report the numbers. One set, never mix.
   layout code is the shared, already tested rvip-wm.js); the 3 remaining
   404s are the sound files (stage 6).
 
-### Next: stage 6 (docs + sound)
+### Stage 6 (docs + sound): done 2026-09-26 (cloud, resumed run) — Docs page not built
+- **Sound**: the game's own `EVENT_SOUND` → `message_sound_name()` →
+  `Module.fa.sound(name)`; `lib/customize/sound.prf` (FAangband ships the
+  Dubtrain pack as mp3 in `lib/sounds`) now has a line for every
+  `list-message.h` entry except `WALK` (silent on purpose): added BIRTH,
+  BR_ICE, BR_STORM, BR_DRAGONFIRE, BR_HELLFIRE, SCRAMBLE. The page reads
+  `sound.prf` lazily from the preload with `Module.FS.readFile(ROOT +
+  '/lib/customize/sound.prf')` (no `fetch()` of a .prf/.cfg any more);
+  `build.sh` copies only the mp3s the prf names to `dist/sounds`, and
+  `web/music/new_town.ogg` (from the template) to `dist/music`. The music
+  `Audio` is created on first use. Sound and Music **off by default**
+  (buttons, kept in the layout file). `rvip/templates/dubtrain` (wav) was
+  not needed: the variant's own samples cover every mapped event.
+- **Help/Docs**: `web/make-help.py` (standalone: the Docs repo is not in
+  the cloud) writes `dist/help.html` (Help button: about, keys to remember
+  incl. `p`, Enter menu, inventory letters, `<`/`>`; full key lists parsed
+  from `lib/help/commands.txt` + `r_comm.txt` with "(roguelike keyset)";
+  saving for the web; tips; new-player guide; playing in the browser;
+  credits from `lib/screens/news.txt`, Shockbolt, Dubtrain) and
+  `docs/web/faangband-docs.html` (same content as a standalone page).
+- Test `web/test/stage6.mjs`: buttons "Sound: off / Music: off", no sample
+  requests while off; after switching on, stairs/rest fetch
+  `sounds/plm_floor_creak*.mp3`, `amb_thunder_rain.mp3`,
+  `amb_door_iron.mp3` and `music/new_town.ogg` (town); no .prf/.cfg
+  requests; Help shows the guide; no 4xx responses, no page errors
+  (favicon 404 fixed with `<link rel="icon" href="data:,">`).
+- **Mac side**: fold `docs/web/faangband-docs.html` into the Docs build
+  (`build-docs.py` GAMES entry + `guides.py` Tips/guide, "In the browser"
+  section), then optionally switch `make-help.py` to the template's
+  import-from-Docs form; rebuild, deploy (`sh web/deploy.sh`), check the
+  live page in the browser pane (sound audible, windows drag/rename).
+
+### Next: stage 7 (publish) — Mac side
+- Deploy from the pushed tree (`sh web/build.sh && sh web/deploy.sh`),
+  browser-pane check of the live page, Docs page, merge `rvip/LESSONS.md`
+  into RVIP.md (incl. the `### A-FAangband` section), roguelikes index +
+  family tree entry.
+- Still open from stages 3–4: ASan run of the stage 3–5 changes (native
+  driver with `i`/`e` + letters, Enter menu, `Q`), census of deep levels.

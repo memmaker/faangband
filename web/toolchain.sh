@@ -9,11 +9,11 @@ cd emsdk && ./emsdk install latest && ./emsdk activate latest
 . /home/user/emsdk/emsdk_env.sh   # web/build.sh finds emcc there by itself
 
 # Lossless WebP for the Shockbolt sheet (web/build.sh)
-apt-get install -y webp
+apt-get install -y webp binaryen   # binaryen from apt (resumed run), not npm wasm-opt
 
 # Native ASan build (curses) + pty driver: gcc 13, libncurses-dev (preinstalled),
 # pyte for reading the screen
-python3 -m venv /home/user/venv" && /home/user/venv/bin/pip" install pyte pillow
+python3 -m venv /home/user/venv && /home/user/venv/bin/pip install pyte pillow
 
 # Browser tests: Playwright (Chromium preinstalled under /opt/pw-browsers)
 cd "$(dirname "$0")" && npm install --no-save playwright

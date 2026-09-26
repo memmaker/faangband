@@ -32,5 +32,13 @@ cp web/index.html rvip/web/rvip-wm.js web/faangband.js "$OUT/"
 [ web/tiles.webp -nt lib/tiles/shockbolt/64x64.png ] || \
 	cwebp -quiet -lossless -z 9 -exact lib/tiles/shockbolt/64x64.png -o web/tiles.webp
 cp web/tiles.webp "$OUT/"
+# Sound effects (Dubtrain mp3 from lib/sounds, only those sound.prf names;
+# sound.prf itself is in the preload) and town music, both fetched on demand
+mkdir -p "$OUT/sounds" "$OUT/music"
+for f in $(sed -n 's/^sound:[A-Z_0-9]*://p' lib/customize/sound.prf | tr ' ' '\n' | sort -u); do
+	cp "lib/sounds/$f.mp3" "$OUT/sounds/"
+done
+cp web/music/new_town.ogg "$OUT/music/"
+python3 web/make-help.py "$OUT/help.html"
 rm -rf web/stage
 ls -la "$OUT"
