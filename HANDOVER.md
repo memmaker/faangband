@@ -311,10 +311,56 @@ additions: same-set stand-ins); report the numbers. One set, never mix.
   import-from-Docs form; rebuild, deploy (`sh web/deploy.sh`), check the
   live page in the browser pane (sound audible, windows drag/rename).
 
-### Next: stage 7 (publish) — Mac side
-- Deploy from the pushed tree (`sh web/build.sh && sh web/deploy.sh`),
-  browser-pane check of the live page, Docs page, merge `rvip/LESSONS.md`
-  into RVIP.md (incl. the `### A-FAangband` section), roguelikes index +
-  family tree entry.
-- Still open from stages 3–4: ASan run of the stage 3–5 changes (native
-  driver with `i`/`e` + letters, Enter menu, `Q`), census of deep levels.
+### Stage 7 — publish (done, Mac, 2026-09-26)
+- **Mac check** (browser pane, own tab, `web/dist` on a local no-store
+  server): birth (world menu `d`, Dwarf Warrior), town with Shockbolt tiles,
+  `>` on the stairs → DL1, `p` explore (stops on a new message, "In view: a
+  grey mold."), Enter menu + letters in the submenu (`b` → Rest prompt),
+  `i` → Enter → object menu → `E` eats; `i` + letter quaffs and the list
+  reopens; Windows menu (Recall + Equipment on/off), layout and character
+  restored after reload; `<` walked back to the up staircase and took it
+  (town); Ctrl-X → Hall of Fame → "FAangband has ended" → Play again loads
+  the character; Help guide; Sound/Music off at start, after a click the
+  mp3s and `music/new_town.ogg` load; no `.prf`/`.cfg` requests, no console
+  errors. Tiles: Shockbolt Dark only, `web/tile-coverage.py` 1316/1316.
+- **Fixed** (`9c29725` in the cloud history = `8498987` here): the cloud's
+  `make-help.py` wrote its own HTML that used none of the page's help
+  classes (unstyled guide) and a `docs/web/faangband-docs.html`: now
+  Tactical Angband's form, reading the Docs entry; `build.sh` takes
+  `rvip-wm.js` from `~/Games/rvip-tools/web/`; `toolchain.sh` notes Homebrew.
+- **Docs**: entry `faangband.html` in `~/Desktop/Games/Roguelikes/Docs`
+  (`build-docs.py` GAMES, `guides.py` GUIDES + SAVING); other pages
+  unchanged byte for byte.
+- **Repos**: this folder = public **memmaker/faangband** (remote
+  `memmaker`, branch `main`), history without `rvip/`, `web/shots/`,
+  `LESSONS.md` (`git filter-repo --refs 0d85203a0..main`, so upstream
+  hashes stay); cloud history with the bundle = private
+  **memmaker/faangband-cloud** (`~/Games/faangband-cloud`). Upstream
+  NickMcConnell/FAangband `main` @ `0d85203`; README with the compare view.
+- **Live**: https://ruzzoli.de/roguelikes/faangband/ (`sh web/build.sh && sh
+  web/deploy.sh`, guard now fetches `memmaker`). Card on
+  https://ruzzoli.de/roguelikes/ (`faangband.png`: 60 Shockbolt monster
+  tiles at 32 px, 384×160; 36 games), tree: the existing FAangband entry
+  under Oangband is now a gold link ("2000s · Nick McConnell; 2.0 rebuilt on
+  Angband 4.2"; the year is unchecked, stage 8). og block in
+  `web/index.html` by hand. The page title already links to
+  `../shrine/faangband.html` (stage 8 creates it).
+- Open problems: a stair walk that must cross a known trap in a one-wide
+  corridor does nothing and prints nothing (`W` + direction steps onto
+  it); zoom in a small window changes nothing visible (term 0 stays
+  ≥ 80×24, CSS-scaled); Messages shows 4.2's own `<2x>` repeat marker;
+  still no ASan run of the stage 3–5 changes, no census of deep levels.
+
+Next: stage 8 (shrine). Template `~/Games/roguelikes-index/shrine/lambdarogue.html`
+/ `tactical-angband.html` (4.2 family). Material:
+- Manual/help: `docs/*.rst` (Sphinx manual: playing, birth, world,
+  command, option, attack, customize, faq, guide, a-quick-demo), in-game
+  help `lib/help/*.txt`, the web guide (`dist/help.html`, Docs
+  `faangband.html`); home page http://nickmcconnell.github.io/FAangband/.
+- Licence: GPL 2 or Angband licence (source headers, `docs/copying.rst`).
+- Changelog: `changes.txt` (since 1.4.4, 2.0.0 and 2.0.1 notes); older
+  history on the home page / angband.live forum.
+- Walkthrough: none in the source; check angband.live, RogueBasin,
+  the FAangband page, else report as missing.
+- Check the tree year (first FAangband release) and Si Griffin's 0.3.6
+  role; add Info button, ✦ and the shrine og block.
