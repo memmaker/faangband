@@ -1,0 +1,19 @@
+#!/bin/sh
+# Toolchain used for the FAangband web port in the Claude Code cloud session
+# (Ubuntu 24.04 container, 2026-09-26).  Every command that was run, in order.
+set -e
+
+# Emscripten (worked first try: emcc 6.0.10, d6c521a7f05449857c76bd99e396895583cf2083)
+cd /home/user && git clone https://github.com/emscripten-core/emsdk
+cd emsdk && ./emsdk install latest && ./emsdk activate latest
+. /home/user/emsdk/emsdk_env.sh   # web/build.sh finds emcc there by itself
+
+# Lossless WebP for the Shockbolt sheet (web/build.sh)
+apt-get install -y webp
+
+# Native ASan build (curses) + pty driver: gcc 13, libncurses-dev (preinstalled),
+# pyte for reading the screen
+python3 -m venv /home/user/venv" && /home/user/venv/bin/pip" install pyte pillow
+
+# Browser tests: Playwright (Chromium preinstalled under /opt/pw-browsers)
+cd "$(dirname "$0")" && npm install --no-save playwright

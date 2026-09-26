@@ -64,6 +64,10 @@
  */
 static const struct module modules[] =
 {
+#ifdef USE_WEB
+	{ "web", help_web, init_web, false, true },
+#endif /* USE_WEB */
+
 #ifdef USE_X11
 	{ "x11", help_x11, init_x11, false, true },
 #endif /* USE_X11 */

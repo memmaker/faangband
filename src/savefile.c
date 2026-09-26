@@ -378,6 +378,10 @@ static bool try_save(ang_file *file)
 	return success;
 }
 
+#ifdef USE_WEB
+extern void web_sync_files(void);
+#endif
+
 /**
  * Attempt to save the player in a savefile
  */
@@ -432,6 +436,11 @@ bool savefile_save(const char *path)
 		safe_setuid_drop();
 
 		character_saved = ok;
+
+#ifdef USE_WEB
+		/* Write the save directory back to IndexedDB */
+		web_sync_files();
+#endif
 
 		return ok;
 	}

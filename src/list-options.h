@@ -7,6 +7,15 @@
  * Cheat options need to be followed by corresponding score options
  */
 
+/* Web build (RVIP 3d): defaults that differ in the browser */
+#ifndef WEB_ON
+# ifdef USE_WEB
+#  define WEB_ON true
+# else
+#  define WEB_ON false
+# endif
+#endif
+
 /* name                   description
 type     normal */
 OP(none,                  "",
@@ -14,7 +23,7 @@ SPECIAL, false)
 OP(rogue_like_commands,   "Use the roguelike command keyset",
 INTERFACE, false)
 OP(autoexplore_commands,  "Use autoexplore commands",
-INTERFACE, false)
+INTERFACE, WEB_ON)
 OP(use_sound,             "Use sound",
 INTERFACE, false)
 OP(show_damage,           "Show damage player deals to monsters",
@@ -42,11 +51,11 @@ INTERFACE, false)
 OP(animate_flicker,       "Color: Shimmer multi-colored things",
 INTERFACE, false)
 OP(center_player,         "Center map continuously",
-INTERFACE, false)
+INTERFACE, WEB_ON)
 OP(purple_uniques,        "Color: Show unique monsters in purple",
 INTERFACE, false)
 OP(auto_more,             "Automatically clear '-more-' prompts",
-INTERFACE, false)
+INTERFACE, WEB_ON)
 OP(hp_changes_color,      "Color: Player color indicates % hit points",
 INTERFACE, true)
 OP(mouse_movement,        "Allow mouse clicks to move the player",
