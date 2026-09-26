@@ -364,3 +364,24 @@ Next: stage 8 (shrine). Template `~/Games/roguelikes-index/shrine/lambdarogue.ht
   the FAangband page, else report as missing.
 - Check the tree year (first FAangband release) and Si Griffin's 0.3.6
   role; add Info button, ✦ and the shrine og block.
+
+### Stage 8 — shrine (done)
+- Page https://ruzzoli.de/roguelikes/shrine/faangband.html (roguelikes-index
+  `19600e8`): `shrine/faangband.html` + `shrine/faangband/manual.html` (all
+  `docs/*.rst` of the Sphinx manual except `hacking/`, plus `lib/help/`
+  commands/r_comm/symbols, one `<pre>` each; generator was a scratch script),
+  `changelog.txt` (`changes.txt`, which starts at 2.0, + GitHub release notes
+  2.0.0/2.0.1), `license.txt` (`docs/copying.rst`). og block by hand.
+- Lineage checked: 0.1.0 announced 28 Nov 2005 on r.g.r.a (narkive), based
+  on Oangband 0.7.0 (also RogueBasin); 0.3.6 (8 Feb 2009) released for Si
+  Griffin ("Psi"), per the archived oook.cz forum thread and `news.txt`;
+  2.0.0 22 Aug 2021, 2.0.1 30 Sep 2021 (GitHub releases). Tree entry now
+  "2005 · Nick McConnell, from Oangband 0.7.0; 2.0 (2021) rebuilt on
+  Angband 4.2" + ✦; card tag 2005 + Info button. Game-title link was
+  already live (stage 7); game page not rebuilt.
+- Missing: no walkthrough (strategy rules + links instead); no cheat/exploit
+  list beyond 4.2's debug/wizard/cheat options; 0.x/1.x changelogs not in
+  the repo (linked to the archived angband.oook.cz/faangband page).
+- 375 px: no horizontal scroll (shrine, manual, index); all links 200.
+
+Next: stage 9 (graveyard + leaderboard).
