@@ -174,12 +174,39 @@ additions: same-set stand-ins); report the numbers. One set, never mix.
   to explore."; objects in the path stop every walk until picked up/ignored
   (upstream `run_step()` rule).
 
-### Next: stage 3 (Enter menu + inventory)
-- Enter already opens 4.2's `textui_action_menu_choose()` (`ui-context.c`,
-  `cmd_menu()` with fixed `region area = { 23, 4, 37, 13 }`), lists from
-  `cmds_all[]` in `src/ui-game.c`. Move the "Hidden" player commands (explore
-  `p`, walk, run, stand still, notes, center map, repeat, autopickup,
-  version, pref line, toggle windows) into real groups, keep debug/wizard in
-  their own group, size the boxes to content, show the current keyset's key.
-- 3c: Tactical Angband's approach (A-4.2): `item_menu()` switch keys,
-  `context_menu_object_act()`; FAangband's `ui-object.c` / `ui-context.c`.
+### Stage 3 (Enter menu + inventory): done 2026-09-26 (cloud, resumed run)
+- **Enter menu** = 4.2's own `textui_action_menu_choose()` / `cmd_menu()`
+  (`src/ui-context.c`), lists `cmds_all[]` (`src/ui-game.c`). The "Hidden"
+  group's player commands moved: explore `p`, walk, run, stand still, alter,
+  steal, repeat, autopickup → Action commands; center map, notes, version →
+  Information; pref line, toggle windows → Utility. "Hidden" renamed
+  "Wizard and debug" (wizard mode + the nested Debug menus). Letters select
+  in every level (`menu.selections = lower_case`, tags shown `a)`); boxes
+  sized to the longest entry incl. the key of the *current* keyset
+  (`cmd_sub_entry()` already looks up `key[mode]`), clamped to the term.
+- **Inventory/equipment browser** (`i`/`e`, `do_cmd_inven/equip()` in
+  `src/ui-knowledge.c`): global `item_menu_browse` makes `item_menu()`
+  (`src/ui-object.c`) put every item letter, Shift+letter and Ctrl+letter
+  (not ^M/^I) into `switch_keys`; `get_item_action()` decides: letter =
+  main action, Shift+letter = drop, Ctrl+letter = inspect (then back to the
+  list), Enter/Space/click = the object context menu (letters select there
+  too, 4.2's command letters). Actions run **by direct call** through
+  `context_menu_object_act(obj, cmd)` / `context_menu_object_browse(obj,
+  act)` / `context_menu_object_main(obj)` (`src/ui-context.c`, split out of
+  `context_menu_object()`, same checks: inscription confirm,
+  `get_item_allow()`), which push the command with its item argument.
+  After an action the browser reopens (`inven_reopen`, hook at the top of
+  `textui_process_command()`), unless a monster is in view.
+- Test: `web/test/stage3.mjs` (Playwright): Enter → 6 groups a–f, `b` →
+  Action commands incl. "Start exploring (p)", `d` Information has
+  "Version info", `f` Wizard and debug; Enter `c` `b` opens the inventory
+  from the submenu; Ctrl+a inspects the ration and returns to the list;
+  Enter opens the action menu (I/E/d/v/{/k); `a` eats the ration ("That
+  tastes good"); `i` Shift+A drops the potion. No page errors. Shots
+  `web/shots/stage3-*.png`.
+- Open problems: the reopen after an action was not seen in the test
+  (town/wilderness always has a monster in view, so it is suppressed by
+  design); no ASan run for stage 3 in this session (time budget): the
+  Mac/next session should run the native driver with `i`/`e` + letters.
+
+### Next: stage 4 (tiles)

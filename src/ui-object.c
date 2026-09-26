@@ -616,6 +616,12 @@ static int throwing_num;
 static struct object **floor_list;
 static struct object **throwing_list;
 static olist_detail_t olist_mode = 0;
+
+/* RVIP: inventory browser (do_cmd_inven/equip): letters act directly */
+bool item_menu_browse = false;
+int item_menu_browse_act = 0;
+static char browse_keys[128];
+
 static int item_mode;
 static cmd_code item_cmd;
 static bool newmenu = false;
@@ -954,6 +960,39 @@ static bool get_item_action(struct menu *menu, const ui_event *event, int oid)
 	bool is_harmless = item_mode & IS_HARMLESS ? true : false;
 	int mode = OPT(player, rogue_like_commands) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
 
+	if (item_menu_browse)
+		item_menu_browse_act = 0;
+
+	/* RVIP: browse mode: letter = main action, Shift = drop, Ctrl = inspect */
+	if (item_menu_browse && event->type == EVT_KBRD && menu->selections
+			&& !strchr("/|-", key)) {
+		int act = 1, i;
+		keycode_t c = event->key.code;
+
+		if (c >= 1 && c <= 26) {
+			c = 'a' + c - 1;
+			act = 3;
+		} else if (event->key.mods & KC_MOD_CONTROL) {
+			act = 3;
+		} else if (isupper((unsigned char)c)) {
+			const char *lc = strchr(menu->selections,
+				tolower((unsigned char)c));
+			if (lc && lc - menu->selections < menu->count) {
+				c = tolower((unsigned char)c);
+				act = 2;
+			}
+		}
+		for (i = 0; menu->selections[i] && i < menu->count; i++) {
+			if (menu->selections[i] == (char)c && choice[i].object) {
+				selection = choice[i].object;
+				item_menu_browse_act = act;
+				break;
+			}
+		}
+		if (!selection) bell();
+		return false;
+	}
+
 	if (event->type == EVT_SELECT) {
 		if (choice[oid].object && get_item_allow(choice[oid].object, cmd_lookup_key(item_cmd, mode),
 						   item_cmd, is_harmless))
@@ -1156,6 +1195,27 @@ static struct object *item_menu(cmd_code cmd, int prompt_size, int mode)
 	else
 		m->selections = all_letters_nohjkl;
 	m->switch_keys = "/|-";
+	if (item_menu_browse) {
+		/* RVIP: every item letter, Shift+letter, Ctrl+letter comes here */
+		size_t n = 0, i;
+		const char *sel = m->selections;
+
+		for (i = 0; sel[i] && n + 4 < sizeof(browse_keys); i++) {
+			char c = sel[i];
+			browse_keys[n++] = c;
+			if (islower((unsigned char)c)) {
+				browse_keys[n++] = toupper((unsigned char)c);
+				/* not Ctrl-M (Enter) or Ctrl-I (Tab) */
+				if (c != 'm' && c != 'i')
+					browse_keys[n++] = c & 0x1f;
+			}
+		}
+		browse_keys[n++] = '/';
+		browse_keys[n++] = '|';
+		browse_keys[n++] = '-';
+		browse_keys[n] = '\0';
+		m->switch_keys = browse_keys;
+	}
 	m->context_hook = use_context_menu_list_switcher;
 	m->flags = (MN_PVT_TAGS | MN_INSCRIP_TAGS | MN_KEYMAP_ESC);
 	m->browse_hook = item_menu_browser;

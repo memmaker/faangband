@@ -50,6 +50,8 @@ void show_equip(int mode, item_tester tester);
 void show_quiver(int mode, item_tester tester);
 void show_floor(struct object **floor_list, int floor_num, int mode,
 				item_tester tester);
+extern bool item_menu_browse;
+extern int item_menu_browse_act;
 bool textui_get_item(struct object **choice, const char *pmt, const char *str,
 					 cmd_code cmd, item_tester tester, int mode);
 bool get_item_allow(const struct object *obj, unsigned char ch, cmd_code cmd,

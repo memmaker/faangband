@@ -3865,6 +3865,9 @@ void do_cmd_messages(void)
 /**
  * Display inventory
  */
+/* RVIP: reopen the inventory/equipment browser after an item action */
+int inven_reopen = 0;
+
 void do_cmd_inven(void)
 {
 	struct object *obj = NULL;
@@ -3883,12 +3886,34 @@ void do_cmd_inven(void)
 		/* Save screen */
 		screen_save();
 
+		/* RVIP: letters act directly (item_menu_browse) */
+		item_menu_browse = true;
+		item_menu_browse_act = 0;
+
 		/* Get an item to use a context command on (Display the inventory) */
 		if (get_item(&obj, "Select Item:",
 				"Error in do_cmd_inven(), please report.",
 				CMD_NULL, NULL, GET_ITEM_PARAMS)) {
+			int act = item_menu_browse_act;
+
+			item_menu_browse = false;
+
 			/* Load screen */
 			screen_load();
+
+			if (act && obj && obj->kind) {
+				track_object(player->upkeep, obj);
+				if (!player_is_shapechanged(player)) {
+					ret = context_menu_object_browse(obj, act);
+					if (ret == 2)
+						ret = 3;
+					if (ret == 1)
+						inven_reopen = 1;
+				} else {
+					ret = -1;
+				}
+				continue;
+			}
 
 			if (obj && obj->kind) {
 				/* Track the object */
@@ -3896,9 +3921,13 @@ void do_cmd_inven(void)
 
 				if (!player_is_shapechanged(player)) {
 					while ((ret = context_menu_object(obj)) == 2);
+					if (ret == 1)
+						inven_reopen = 1;
 				}
 			}
 		} else {
+			item_menu_browse = false;
+
 			/* Load screen */
 			screen_load();
 
@@ -3929,12 +3958,34 @@ void do_cmd_equip(void)
 		/* Save screen */
 		screen_save();
 
+		/* RVIP: letters act directly (item_menu_browse) */
+		item_menu_browse = true;
+		item_menu_browse_act = 0;
+
 		/* Get an item to use a context command on (Display the equipment) */
 		if (get_item(&obj, "Select Item:",
 				"Error in do_cmd_equip(), please report.",
 				CMD_NULL, NULL, GET_ITEM_PARAMS)) {
+			int act = item_menu_browse_act;
+
+			item_menu_browse = false;
+
 			/* Load screen */
 			screen_load();
+
+			if (act && obj && obj->kind) {
+				track_object(player->upkeep, obj);
+				if (!player_is_shapechanged(player)) {
+					ret = context_menu_object_browse(obj, act);
+					if (ret == 2)
+						ret = 3;
+					if (ret == 1)
+						inven_reopen = 2;
+				} else {
+					ret = -1;
+				}
+				continue;
+			}
 
 			if (obj && obj->kind) {
 				/* Track the object */
@@ -3942,12 +3993,16 @@ void do_cmd_equip(void)
 
 				if (!player_is_shapechanged(player)) {
 					while ((ret = context_menu_object(obj)) == 2);
+					if (ret == 1)
+						inven_reopen = 2;
 				}
 
 				/* Stay in "equipment" mode */
 				player->upkeep->command_wrk = (USE_EQUIP);
 			}
 		} else {
+			item_menu_browse = false;
+
 			/* Load screen */
 			screen_load();
 

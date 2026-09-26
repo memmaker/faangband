@@ -802,6 +802,85 @@ int context_menu_object(struct object *obj)
 
 	screen_load();
 
+	return context_menu_object_act(obj, selected);
+}
+
+/**
+ * RVIP: the main action of an item (letter in the inventory browser):
+ * the same choice the context menu offers first after Inspect.
+ */
+int context_menu_object_main(struct object *obj)
+{
+	if (obj_can_browse(obj)) {
+		if (obj_can_cast_from(obj) && player_can_cast(player, false))
+			return CMD_CAST;
+		if (obj_can_study(obj) && player_can_study(player, false))
+			return CMD_STUDY;
+		return CMD_BROWSE_SPELL;
+	} else if (obj_is_useable(obj)) {
+		if (tval_is_wand(obj)) return CMD_USE_WAND;
+		if (tval_is_rod(obj)) return CMD_USE_ROD;
+		if (tval_is_staff(obj)) return CMD_USE_STAFF;
+		if (tval_is_scroll(obj)) return CMD_READ_SCROLL;
+		if (tval_is_potion(obj)) return CMD_QUAFF;
+		if (tval_is_edible(obj)) return CMD_EAT;
+		if (obj_is_activatable(obj)) {
+			if (object_is_equipped(player->body, obj))
+				return CMD_ACTIVATE;
+		} else if (obj_can_fire(obj)) {
+			return CMD_FIRE;
+		} else {
+			return CMD_USE;
+		}
+	}
+	if (obj_can_refill(obj))
+		return CMD_REFILL;
+	if (object_is_equipped(player->body, obj) && obj_can_takeoff(obj))
+		return CMD_TAKEOFF;
+	if (!object_is_equipped(player->body, obj) && obj_can_wear(obj))
+		return CMD_WIELD;
+	if (!object_is_carried(player, obj))
+		return CMD_PICKUP;
+	return MENU_VALUE_INSPECT;
+}
+
+/**
+ * RVIP: inventory browser keys: act 1 = main action, 2 = drop, 3 = inspect
+ */
+int context_menu_object_browse(struct object *obj, int act)
+{
+	int selected = (act == 2) ? CMD_DROP :
+		(act == 3) ? MENU_VALUE_INSPECT : context_menu_object_main(obj);
+
+	if (selected == CMD_DROP && !object_is_carried(player, obj)) {
+		bell();
+		return 3;
+	}
+	return context_menu_object_act(obj, selected);
+}
+
+/**
+ * RVIP: run one action of the object context menu (menu, inventory
+ * browser letters); same checks as the menu.  Returns like
+ * context_menu_object().
+ */
+int context_menu_object_act(struct object *obj, int selected)
+{
+	textblock *tb;
+	region area = { 0, 0, 0, 0 };
+	char header[120];
+	bool allowed = true;
+	int mode = OPT(player, rogue_like_commands) ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
+	unsigned char cmdkey;
+
+	if (selected == CMD_DROP && square_isshop(cave, player->grid)
+			&& store_at(cave, player->grid) != store_home(player)
+			&& !store_will_buy_tester(obj)) {
+		msg("The shop does not want that.");
+		return 1;
+	}
+	area.width = -((int)Term->wid / 3);
+
 	cmdkey = cmd_lookup_key(selected, mode);
 
 	switch (selected) {
@@ -1161,6 +1240,9 @@ static bool cmd_menu(struct command_list *list, void *selection_p)
 	struct menu menu;
 	menu_iter commands_menu = { NULL, NULL, cmd_sub_entry, NULL, NULL };
 	region area = { 23, 4, 37, 13 };
+	int i, w = 0;
+	int mode = OPT(player, rogue_like_commands) ?
+		KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG;
 
 	ui_event evt;
 	struct cmd_info **selection = selection_p;
@@ -1173,14 +1255,36 @@ static bool cmd_menu(struct command_list *list, void *selection_p)
 	/* Set up the menu */
 	menu_init(&menu, MN_SKIN_SCROLL, &commands_menu);
 	menu_setpriv(&menu, list->len, list->list);
+
+	/* RVIP: letters select, box sized to its content */
+	menu.selections = lower_case;
+	for (i = 0; i < list->len; i++) {
+		struct keypress kp = { EVT_KBRD, list->list[i].key[mode], 0 };
+		char buf[16];
+		int len = strlen(list->list[i].desc) + 3;
+
+		if (kp.code) {
+			keypress_to_readable(buf, sizeof buf, kp);
+			len += strlen(buf) + 3;
+		}
+		w = MAX(w, len);
+	}
+	area.width = w;
+	area.page_rows = list->len;
 	area.col += 2 * list->menu_level;
 	area.row -= list->menu_level;
-	assert(area.row > 1);
+	if (area.row + area.page_rows + 1 > Term->hgt - 1)
+		area.row = MAX(1, Term->hgt - 2 - area.page_rows);
+	area.page_rows = MIN(area.page_rows, Term->hgt - 2 - area.row);
+	if (area.col + area.width + 2 > Term->wid)
+		area.col = MAX(2, Term->wid - area.width - 2);
+	assert(area.row >= 1);
 	menu_layout(&menu, &area);
 
 	/* Set up the screen */
 	screen_save();
-	window_make(area.col - 2, area.row - 1, area.col + 39, area.row + 13);
+	window_make(area.col - 2, area.row - 1, area.col + area.width + 1,
+		area.row + area.page_rows);
 
 	while (1) {
 		/* Select an entry */
@@ -1271,8 +1375,8 @@ static menu_iter command_menu_iter =
  */
 struct cmd_info *textui_action_menu_choose(void)
 {
-	region area = { 21, 5, 37, 6 };
-	int len = 0;
+	region area = { 21, 5, 0, 0 };
+	int len = 0, i;
 
 	struct cmd_info *chosen_command = NULL;
 
@@ -1283,12 +1387,18 @@ struct cmd_info *textui_action_menu_choose(void)
 		len++;
 	};
 
+	/* RVIP: letters select, box sized to the group names */
+	command_menu->selections = lower_case;
+	for (i = 0; i < len; i++)
+		area.width = MAX(area.width, (int)strlen(cmds_all[i].name) + 3);
+	area.page_rows = len;
 	menu_setpriv(command_menu, len, &chosen_command);
 	menu_layout(command_menu, &area);
 
 	/* Set up the screen */
 	screen_save();
-	window_make(19, 4, 58, 11);
+	window_make(area.col - 2, area.row - 1, area.col + area.width + 1,
+		area.row + area.page_rows);
 
 	menu_select(command_menu, 0, true);
 
