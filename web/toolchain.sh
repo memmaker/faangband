@@ -1,4 +1,11 @@
 #!/bin/sh
+# Mac (maintainer's machine, 2026-09-26): Homebrew only, no emsdk
+#   brew install emscripten webp        # emcc 6.0.10 on PATH, cwebp
+#   shared page code: ~/Games/rvip-tools/web/rvip-wm.js (copied by web/build.sh)
+#   help: web/make-help.py reads the Docs entry faangband.html from
+#   ~/Desktop/Games/Roguelikes/Docs (build-docs.py + guides.py)
+#   sh web/build.sh && sh web/deploy.sh
+#
 # Toolchain used for the FAangband web port in the Claude Code cloud session
 # (Ubuntu 24.04 container, 2026-09-26).  Every command that was run, in order.
 set -e

@@ -4,7 +4,7 @@
 # Toolchain: web/toolchain.sh (emsdk, cwebp).
 set -e
 cd "$(dirname "$0")/.."
-command -v emcc >/dev/null || PATH="${EMSDK:-/home/user/emsdk}/upstream/emscripten:$PATH"
+command -v emcc >/dev/null || PATH="${EMSDK:-/home/user/emsdk}/upstream/emscripten:$PATH"  # Mac: Homebrew emcc
 OUT=web/dist
 rm -rf "$OUT" web/stage && mkdir -p "$OUT" web/stage/lib/tiles/shockbolt
 
@@ -27,7 +27,7 @@ emcc -O2 -std=gnu99 -DUSE_WEB -DHAVE_MKSTEMP -Isrc -w \
 	-sFORCE_FILESYSTEM -lidbfs.js -sENVIRONMENT=web \
 	--preload-file web/stage/lib@/faangband/lib
 
-cp web/index.html rvip/web/rvip-wm.js web/faangband.js "$OUT/"
+cp web/index.html "$HOME/Games/rvip-tools/web/rvip-wm.js" web/faangband.js "$OUT/"
 # Shockbolt tiles, lossless WebP (the PNG is 18 MB); drawn nearest-neighbour
 [ web/tiles.webp -nt lib/tiles/shockbolt/64x64.png ] || \
 	cwebp -quiet -lossless -z 9 -exact lib/tiles/shockbolt/64x64.png -o web/tiles.webp
@@ -39,6 +39,6 @@ for f in $(sed -n 's/^sound:[A-Z_0-9]*://p' lib/customize/sound.prf | tr ' ' '\n
 	cp "lib/sounds/$f.mp3" "$OUT/sounds/"
 done
 cp web/music/new_town.ogg "$OUT/music/"
-python3 web/make-help.py "$OUT/help.html"
+python3 web/make-help.py > "$OUT/help.html"
 rm -rf web/stage
 ls -la "$OUT"
