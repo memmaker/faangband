@@ -385,3 +385,25 @@ Next: stage 8 (shrine). Template `~/Games/roguelikes-index/shrine/lambdarogue.ht
 - 375 px: no horizontal scroll (shrine, manual, index); all links 200.
 
 Next: stage 9 (graveyard + leaderboard).
+
+### Stage 9 — graveyard + leaderboard (done)
+- Hook: `src/score.c` `enter_score()` calls `web_run_end(p, total_points(p))`
+  under `USE_WEB` (as Tactical Angband); `web_run_end()`/`js_beacon` were
+  already in `src/main-web.c` since stage 1 but never called. Reached from
+  `death_knowledge()` in `close_game()`'s `is_dead` branch: death, retire
+  (`Q`, died_from "Retiring" → `ev=quit`) and a winner's retire
+  (`total_winner` → `ev=win`). Ctrl-X save sends nothing (run not over).
+- Fields: g=faangband, ev, name (`full_name`), killer (`died_from`, articles
+  stripped), depth, score (`total_points()` = max_exp + 100 × max_depth,
+  the high-score list's), turns (`total_energy / 100`), lvl. None missing.
+  Sent before the cheater/wizard checks, so debug runs report too.
+- Killer art: `roguelikes-index/killers/make.py` `tactical('faangband')`
+  (the Tactical function takes the game folder now), 618 PNGs from
+  `graf-shb-dark.prf` incl. the stand-in block; roguelikes-index `8af349a`.
+- Verified live (browser pane): retire with `/roguelikes/beacon` blocked
+  (503) → one URL with `id`/`at` in `rvip-outbox`; unblocked +
+  `RvipWM.flush()` → same URL, 204, outbox empty. Death: `^A n dracolisk`
+  in town, walk into it → `ev=death&killer=dracolisk`, 204, outbox empty.
+  `/faangband/...` IndexedDB databases deleted afterwards.
+- Open: the win path is not tested live (needs a Morgoth kill); the birth
+  name prompt dropped typed letters in the pane (name stayed PLAYER).
