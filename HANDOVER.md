@@ -127,10 +127,59 @@ additions: same-set stand-ins); report the numbers. One set, never mix.
   shops 1–9 show text numbers where Shockbolt has no FAangband shop, `>` is
   text in town (stage 4).
 
-### Next: stage 2 (explore + stairs)
-- 4.2 already has explore (`autoexplore_commands`, on in the web build) and
-  stair pathing: `grep -n explore src/player-path.c src/cmd-cave.c
-  src/ui-game.c`; apply the A-4.2 fixes (arrival in `run_step()`, continue
-  explore via `cmdq_push(CMD_EXPLORE)`, `messages_added` stop, doors).
-- Test with Playwright: `web/test/birth.mjs` + keys; the Standard
-  Wilderness town has one staircase down (`>` at the top left).
+### Stage 2 (explore + stairs): done 2026-09-26 (cloud)
+- **Explore key `p`** (4.2's own `CMD_EXPLORE`, option `autoexplore_commands`,
+  on by default in the web build via `WEB_ON`); same key in both keysets.
+  `<` / `>` = 4.2's `do_cmd_navigate_up/down()` when not on stairs.
+- Code: `src/cmd-cave.c` `do_cmd_explore()`, `do_cmd_navigate_up/down()`,
+  `do_cmd_pathfind()`; `src/player-path.c` (goal state `path_goal`,
+  `path_set_goal()`, `path_check_goal()`, `path_arrived()`, skip list
+  `path_is_locked()` / `path_add_locked()`), `src/message.c`
+  `messages_added_count()` (every message incl. repeats).
+- **Main-loop hook**: 4.2 runs paths through `run_step()`; the arrival is the
+  branch where `running` reaches 0 and `steps` are freed (end of
+  `run_step()`): it calls `path_arrived()`, which pushes `CMD_GO_DOWN` /
+  `CMD_GO_UP` (stairs, also wilderness paths) or `CMD_EXPLORE` again if no
+  message was added since the walk began. `disturb()` (monster moves, keys)
+  cancels the run before that, so a disturbance stops; pressing again resumes.
+  The open/tunnel detours of `run_step()` re-issue `CMD_PATHFIND` to the same
+  destination, so the goal survives them (`path_check_goal()`).
+- **Known-grid test**: `square_isknown()` (player memory). FAangband does not
+  forget floors, but some frontier grids never become known from where the
+  path ends (walls seen only diagonally): if an explore arrival added no known
+  grid (`path_known_grids()`), that target goes on the per-level skip list,
+  or explore walked between two targets for thousands of turns.
+- Explore stops: monster in view ("In view: a soldier ant."), new message,
+  key, no own light in the dungeon ("You have no light to explore by."),
+  confusion (upstream). Doors: a closed door or impassable rubble next to the
+  player with an unknown other side is opened/tunnelled first (upstream never
+  picked a door whose only known neighbour is the player's grid). Locked
+  doors: never picked ("A locked door blocks the way."), skipped afterwards.
+  Stair walks no longer refuse when a monster is in view (they may flee).
+- Help: `lib/help/commands.txt`, `r_comm.txt` (autoexplore paragraph).
+- Tests (Playwright `web/test/stage2.mjs <n> <world>`): world `d` (Angband
+  Dungeon): `>` in town → DL1; 40 × `p` with debug banish (`^A z y`) when a
+  monster blocks → whole level explored (items, gold, secret door, locked
+  doors skipped), then "Nothing left to explore."; `<` walked to the up
+  staircase and took it (town). World `a`: `>` in town walked to the exit
+  path and took it (Eriador South); wilderness always has monsters in view,
+  so explore refuses there ("In view: a silver mouse."). Shots
+  `web/shots/stage2-*.png`.
+- ASan (native, `-DWEB_ON=true`, keys weighted to `p < >`, worlds a–d by
+  seed): seeds 1–4 × (2500 + 1500 keys) clean; one earlier seed-4 run exited
+  in phase 1 without an ASan report (not reproduced; maybe an `assert` or a
+  death; driver now logs the exit status and last keys; seeds 5–8 running).
+- Open problems: explore in the wilderness is nearly useless (monsters always
+  in view); a level whose rest lies behind locked doors ends in "Nothing left
+  to explore."; objects in the path stop every walk until picked up/ignored
+  (upstream `run_step()` rule).
+
+### Next: stage 3 (Enter menu + inventory)
+- Enter already opens 4.2's `textui_action_menu_choose()` (`ui-context.c`,
+  `cmd_menu()` with fixed `region area = { 23, 4, 37, 13 }`), lists from
+  `cmds_all[]` in `src/ui-game.c`. Move the "Hidden" player commands (explore
+  `p`, walk, run, stand still, notes, center map, repeat, autopickup,
+  version, pref line, toggle windows) into real groups, keep debug/wizard in
+  their own group, size the boxes to content, show the current keyset's key.
+- 3c: Tactical Angband's approach (A-4.2): `item_menu()` switch keys,
+  `context_menu_object_act()`; FAangband's `ui-object.c` / `ui-context.c`.

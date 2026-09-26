@@ -38,6 +38,10 @@ int path_nearest_unknown(struct player *p, struct loc start,
 int find_path(struct player *p, struct loc start, struct loc dest,
 		int16_t **step_dirs);
 int pathfind_direction_to(struct loc from, struct loc to);
+void path_set_goal(int cmd, struct loc dest);
+bool path_is_locked(struct loc grid);
+void path_add_locked(struct loc grid);
+void path_check_goal(struct loc dest);
 void run_step(int dir);
 
 #endif /* !PLAYER_PATH_H */

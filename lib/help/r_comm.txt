@@ -7,13 +7,16 @@ the letter key with the control key also depressed.  You may also press
 and release ^ and then press and release the letter key to activate the
 same command in case your system intercepts the control plus key
 combination and does not pass it on.  The autoexplore_commands option
-modifies the '<', '>', and 'p' commands.  When that option is off (that
-is the default), the commands act as described below.  When that option
-is on, '<' or '>' will use the staircase at the player's location if it
-is the appropriate kind of staircase or will move to the nearest known
-staircase of the appropriate kind if the player is not already at that
-kind of staircase.  'p' will move to the nearest unexplored location
-when the autoexplore_commands option is on.
+modifies the '<', '>', and 'p' commands.  When that option is off (the
+default, except in the browser version), the commands act as described
+below.  When that option is on, '<' or '>' will use the staircase at the
+player's location if it is the appropriate kind of staircase or will walk
+to the nearest known staircase of the appropriate kind and take it on
+arrival (a disturbance stops the walk; press the key again to go on).
+'p' explores: it walks to the nearest unexplored place and keeps going
+until a monster comes into view, something new happens (a message) or
+a key is pressed.  It opens doors and clears rubble on the way, but never
+picks a lock ("A locked door blocks the way"; the next 'p' goes elsewhere).
 
   a    Zap a rod (Activate)            A    Activate an object
   b    (walk - south west)             B    (run - south west)

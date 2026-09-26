@@ -29,6 +29,7 @@
 #include "obj-util.h"
 #include "player-calcs.h"
 #include "player-path.h"
+#include "message.h"
 #include "player-timed.h"
 #include "player-util.h"
 #include "trap.h"
@@ -876,6 +877,101 @@ static int patched_distances_to_path(const struct pfdistances_patched
  * set to loc(-1, -1) if dest_grid is not NULL and *step_dirs will be set to
  * NULL if step_dirs is not NULL.
  */
+/**
+ * RVIP: what a pathfinding walk does when it arrives: keep exploring
+ * (CMD_EXPLORE) or take the stairs (CMD_GO_UP / CMD_GO_DOWN).  Set by the
+ * explore and stair commands, kept across the open/tunnel detours (they
+ * restart the walk with CMD_PATHFIND to the same destination).
+ */
+static int path_goal = CMD_NULL;
+static struct loc path_goal_dest;
+static uint32_t path_goal_msgs;
+static int path_goal_known;
+
+/* Number of grids the player knows on this level */
+static int path_known_grids(void)
+{
+	struct loc grid;
+	int n = 0;
+
+	for (grid.y = 0; grid.y < cave->height; grid.y++)
+		for (grid.x = 0; grid.x < cave->width; grid.x++)
+			if (square_isknown(cave, grid)) n++;
+	return n;
+}
+
+/*
+ * Grids explore gives up on: locked doors (never picked) and targets that
+ * showed nothing new.  Per level.
+ */
+#define PATH_LOCKED_MAX 256
+static struct loc path_locked[PATH_LOCKED_MAX];
+static int path_locked_n = 0;
+static struct chunk *path_locked_cave = NULL;
+
+bool path_is_locked(struct loc grid)
+{
+	int i;
+
+	if (path_locked_cave != cave) return false;
+	for (i = 0; i < path_locked_n; i++)
+		if (loc_eq(path_locked[i], grid)) return true;
+	return false;
+}
+
+void path_add_locked(struct loc grid)
+{
+	if (path_locked_cave != cave) {
+		path_locked_cave = cave;
+		path_locked_n = 0;
+	}
+	if (!path_is_locked(grid) && path_locked_n < PATH_LOCKED_MAX)
+		path_locked[path_locked_n++] = grid;
+}
+
+void path_set_goal(int cmd, struct loc dest)
+{
+	path_goal = cmd;
+	path_goal_dest = dest;
+	path_goal_msgs = messages_added_count();
+	if (cmd == CMD_EXPLORE) path_goal_known = path_known_grids();
+}
+
+/* A mouse walk elsewhere forgets the goal */
+void path_check_goal(struct loc dest)
+{
+	if (!loc_eq(dest, path_goal_dest)) path_goal = CMD_NULL;
+}
+
+/**
+ * The walk has reached its destination: take the stairs, or keep
+ * exploring unless something new was said on the way.
+ */
+static void path_arrived(struct player *p)
+{
+	int goal = path_goal;
+
+	path_goal = CMD_NULL;
+	if (!loc_eq(p->grid, path_goal_dest)) return;
+	if (goal == CMD_GO_DOWN && (square_isdownstairs(cave, p->grid)
+			|| square_ispath(cave, p->grid))) {
+		cmdq_push(CMD_GO_DOWN);
+	} else if (goal == CMD_GO_UP && (square_isupstairs(cave, p->grid)
+			|| square_ispath(cave, p->grid))) {
+		cmdq_push(CMD_GO_UP);
+	} else if (goal == CMD_EXPLORE
+			&& messages_added_count() == path_goal_msgs) {
+		/*
+		 * A target that showed nothing new (its unknown neighbour
+		 * can not be seen from there) is never picked again, or
+		 * explore walks back and forth for ever.
+		 */
+		if (path_known_grids() <= path_goal_known)
+			path_add_locked(p->grid);
+		cmdq_push(CMD_EXPLORE);
+	}
+}
+
 int path_nearest_known(struct player *p, struct loc start,
 		bool (*pred)(struct chunk*, struct loc),
 		struct loc *dest_grid, int16_t **step_dirs)
@@ -997,6 +1093,7 @@ int path_nearest_unknown(struct player *p, struct loc start,
 				}
 				if (passable) {
 					if (!square_ispassable(p->cave, grid)
+							|| path_is_locked(grid)
 							|| count_neighbors(NULL,
 							p->cave, grid,
 							square_isknown, false)
@@ -1008,6 +1105,7 @@ int path_nearest_unknown(struct player *p, struct loc start,
 					if ((!square_iscloseddoor(p->cave, grid)
 							&& !square_isrubble(
 							p->cave, grid))
+							|| path_is_locked(grid)
 							|| count_neighbors(NULL,
 							p->cave, grid,
 							square_isknown,
@@ -2062,7 +2160,16 @@ void run_step(int dir)
 			 * first stop running before pushing the commands to
 			 * deal with the terrain and restart pathfinding.
 			 */
-			if (square_iscloseddoor(player->cave, grid)) {
+			if (square_iscloseddoor(player->cave, grid)
+					&& path_goal != CMD_NULL
+					&& square_islockeddoor(cave, grid)) {
+				/* RVIP: explore and stair walks never pick locks */
+				path_add_locked(grid);
+				path_goal = CMD_NULL;
+				disturb(player);
+				msg("A locked door blocks the way.");
+				return;
+			} else if (square_iscloseddoor(player->cave, grid)) {
 				if (count_neighbors(NULL, cave, grid,
 						square_isknown, true) == 9) {
 					struct loc dest =
@@ -2205,6 +2312,9 @@ void run_step(int dir)
 	} else if (player->upkeep->steps) {
 		mem_free(player->upkeep->steps);
 		player->upkeep->steps = NULL;
+
+		/* The last step of a path: arrived */
+		path_arrived(player);
 	}
 }
 

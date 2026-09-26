@@ -121,9 +121,19 @@ uint16_t messages_num(void)
  * it, in which case the "count" of the message will be increased instead.
  * This count can be fetched using the message_count() function.
  */
+/* Every message added, repeats included (auto-explore stops on new ones) */
+static uint32_t messages_added = 0;
+
+uint32_t messages_added_count(void)
+{
+	return messages_added;
+}
+
 void message_add(const char *str, uint16_t type)
 {
 	message_t *m;
+
+	messages_added++;
 
 	if (messages->head &&
 	    messages->head->type == type &&

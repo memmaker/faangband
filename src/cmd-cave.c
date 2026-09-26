@@ -1656,17 +1656,17 @@ void do_cmd_navigate_down(struct command *cmd)
 	}
 
 
-	/* Screen for visible monsters */
-	if (player_has_monster_in_view(player)) {
-		msg("Something is here.");
-		return;
-	}
-
+	/*
+	 * RVIP: a stair walk may flee from a visible monster; disturb() still
+	 * stops it whenever a monster in view moves.
+	 */
 	assert(!player->upkeep->steps);
 	player->upkeep->step_count = path_nearest_known(player, player->grid,
 		square_isdownstairs, &player->upkeep->path_dest,
 		&player->upkeep->steps);
 	if (player->upkeep->step_count > 0) {
+		/* Take the stairs on arrival */
+		path_set_goal(CMD_GO_DOWN, player->upkeep->path_dest);
 		player->upkeep->running_firststep = true;
 		player->upkeep->running = player->upkeep->step_count;
 		/* Calculate torch radius */
@@ -1702,17 +1702,17 @@ void do_cmd_navigate_up(struct command *cmd)
 	}
 
 
-	/* Screen for visible monsters */
-	if (player_has_monster_in_view(player)) {
-		msg("Something is here.");
-		return;
-	}
-
+	/*
+	 * RVIP: a stair walk may flee from a visible monster; disturb() still
+	 * stops it whenever a monster in view moves.
+	 */
 	assert(!player->upkeep->steps);
 	player->upkeep->step_count = path_nearest_known(player, player->grid,
 		square_isupstairs, &player->upkeep->path_dest,
 		&player->upkeep->steps);
 	if (player->upkeep->step_count > 0) {
+		/* Take the stairs on arrival */
+		path_set_goal(CMD_GO_UP, player->upkeep->path_dest);
 		player->upkeep->running_firststep = true;
 		player->upkeep->running = player->upkeep->step_count;
 		/* Calculate torch radius */
@@ -1753,9 +1753,66 @@ void do_cmd_explore(struct command *cmd)
 	}
 
 
-	/* Screen for visible monsters */
+	/* Screen for visible monsters, and name one (RVIP) */
 	if (player_has_monster_in_view(player)) {
+		int n = cave_monster_max(cave), i;
+
+		for (i = 1; i < n; ++i) {
+			struct monster *mon = cave_monster(cave, i);
+
+			if (monster_is_obvious(mon) && monster_is_in_view(mon)) {
+				char m_name[80];
+
+				monster_desc(m_name, sizeof(m_name), mon,
+					MDESC_IND_VIS);
+				msg("In view: %s.", m_name);
+				return;
+			}
+		}
 		msg("Something is here.");
+		return;
+	}
+
+	/*
+	 * A closed door or rubble next to us whose other side is unknown:
+	 * the path search never picks it (its only known neighbour is where
+	 * we stand), so open or clear it here and go on exploring.  Locked
+	 * doors are not picked.
+	 */
+	{
+		int d;
+
+		for (d = 0; d < 8; d++) {
+			struct loc grid = loc_sum(player->grid, ddgrid_ddd[d]);
+
+			if (!square_in_bounds(cave, grid)
+					|| !square_isknown(cave, grid)
+					|| (!square_iscloseddoor(player->cave, grid)
+					&& !(square_isrubble(player->cave, grid)
+					&& !square_ispassable(player->cave, grid)))
+					|| path_is_locked(grid)
+					|| count_neighbors(NULL, cave, grid,
+					square_isknown, false) == 8) {
+				continue;
+			}
+			if (square_iscloseddoor(player->cave, grid)
+					&& square_islockeddoor(cave, grid)) {
+				path_add_locked(grid);
+				msg("A locked door blocks the way.");
+				return;
+			}
+			cmdq_push(square_iscloseddoor(player->cave, grid) ?
+				CMD_OPEN : CMD_TUNNEL);
+			cmd_set_arg_direction(cmdq_peek(), "direction",
+				ddd[d]);
+			cmdq_push(CMD_EXPLORE);
+			return;
+		}
+	}
+
+	/* Without a light of our own nothing new would be seen */
+	if (player->state.cur_light <= 0 && player->depth > 0) {
+		msg("You have no light to explore by.");
 		return;
 	}
 
@@ -1763,6 +1820,8 @@ void do_cmd_explore(struct command *cmd)
 	player->upkeep->step_count = path_nearest_unknown(player, player->grid,
 		&player->upkeep->path_dest, &player->upkeep->steps);
 	if (player->upkeep->step_count > 0) {
+		/* Keep exploring on arrival (RVIP) */
+		path_set_goal(CMD_EXPLORE, player->upkeep->path_dest);
 		player->upkeep->running_firststep = true;
 		player->upkeep->running = player->upkeep->step_count;
 		/* Calculate torch radius */
@@ -1771,7 +1830,7 @@ void do_cmd_explore(struct command *cmd)
 		return;
 	}
 
-	msg("No apparent path for exploration.");
+	msg("Nothing left to explore.");
 }
 
 
@@ -1789,6 +1848,8 @@ void do_cmd_pathfind(struct command *cmd)
 
 	if (player->timed[TMD_CONFUSED])
 		return;
+
+	path_check_goal(grid);
 
 	assert(!player->upkeep->steps);
 	player->upkeep->step_count =
