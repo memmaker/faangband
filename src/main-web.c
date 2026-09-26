@@ -391,7 +391,13 @@ static void hook_plog(const char *str)
 static void hook_quit(const char *str)
 {
 	js_sync();
-	js_quit(str);
+	/* RVIP: say why the game ended (death / retire vs. save and quit) */
+	const char *msg = str;
+
+	if (!str && player && player->is_dead)
+		msg = "Your character has died. Play again starts a new one, "
+			"based on the old one.";
+	js_quit(msg);
 }
 
 

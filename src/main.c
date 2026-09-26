@@ -578,8 +578,10 @@ int main(int argc, char *argv[])
 	 * the previously registered quit hook so whatever other cleaning up
 	 * a front end needs is also done.
 	 */
+#ifndef USE_WEB
 	quit_nested = quit_aux;
 	quit_aux = extended_quit_hook;
+#endif
 
 	/* Wait for response */
 	pause_line(Term);

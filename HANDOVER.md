@@ -245,4 +245,38 @@ additions: same-set stand-ins); report the numbers. One set, never mix.
   stand-ins are family tiles (e.g. all unmapped material amulets share the
   plain "Amulet" tile).
 
-### Next: stage 5 (web page)
+### Stage 5 (web page): done 2026-09-26 (cloud, resumed run) — not deployed
+- Page: `web/index.html` + `web/faangband.js` + shared `rvip-wm.js`
+  (template's layout: Map left, Inventory / Visible monsters / Visible items
+  right, Messages bottom; Recall and Equipment in the Windows menu, hidden by
+  default). Prompt line box via `RvipWM.prompt`, `center_player` on.
+- **Window flags**: term order = page `TERMS` (main, Messages, Inventory,
+  Visible monsters, Visible items, Recall, Equipment); 4.2's
+  `default_window_flag[]` in `src/ui-init.c` matched it except term 6
+  (`PW_OVERHEAD`): now `PW_EQUIP` under `USE_WEB`. Savefiles keep their own
+  flags (old test saves keep old routing).
+- **Game end**: `src/main.c` no longer chains `extended_quit_hook` under
+  `USE_WEB` (`quit_aux` stays the web hook); `hook_quit()` (`main-web.c`)
+  syncs IDBFS and calls `Module.fa.quit(msg)` → "FAangband has ended"
+  overlay with **Play again** (reload). Death/retire says "Your character
+  has died …" (reads `player->is_dead`), save-and-quit "Your game has been
+  saved.". Death path: bones question → tombstone menu → "Do you want to
+  quit? [y/n]" (`y`; Esc returns to the menu) → overlay → Play again →
+  "New character based on previous one".
+- `web/deploy.sh` written (target `ruzzoli.de:/var/www/ruzzoli.de/roguelikes/
+  faangband/`, guard: refuses a dirty tree or an unpushed HEAD, checks
+  `dist/` is built, curl check at the end). **Never run in the cloud** (no
+  deploy key): the Mac side runs `sh web/build.sh && sh web/deploy.sh`.
+  Live URL (after the Mac deploy): https://ruzzoli.de/roguelikes/faangband/
+- Test `web/test/stage5.mjs` (Playwright): all 6 sub-terms get their
+  content (Equipment 13 lines, Inventory, lists, Messages; Recall empty
+  until something is looked at); resize 1000×650 → 1440×900 → 1200×750 →
+  760×500 → 1440×900: canvases follow; ^S + reload restores the character;
+  ^X → save message, high-score list, overlay; Play again loads the
+  character; `Q y @` → death path → death overlay → new birth. No page
+  errors. Shot `web/shots/stage5-*.png`.
+- Open problems: no browser-pane check of dragging/renaming windows (the
+  layout code is the shared, already tested rvip-wm.js); the 3 remaining
+  404s are the sound files (stage 6).
+
+### Next: stage 6 (docs + sound)

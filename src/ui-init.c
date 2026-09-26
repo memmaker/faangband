@@ -96,7 +96,12 @@ void textui_init(void)
 	if (ANGBAND_TERM_MAX > 3) default_window_flag[3] = (PW_MONLIST);
 	if (ANGBAND_TERM_MAX > 4) default_window_flag[4] = (PW_ITEMLIST);
 	if (ANGBAND_TERM_MAX > 5) default_window_flag[5] = (PW_MONSTER | PW_OBJECT);
+#ifdef USE_WEB
+	/* RVIP: the page's 7th window is Equipment (web/faangband.js TERMS) */
+	if (ANGBAND_TERM_MAX > 6) default_window_flag[6] = (PW_EQUIP);
+#else
 	if (ANGBAND_TERM_MAX > 6) default_window_flag[6] = (PW_OVERHEAD);
+#endif
 	if (ANGBAND_TERM_MAX > 7) default_window_flag[7] = (PW_PLAYER_2);
 
 	/* Set up the subwindows */
