@@ -1252,13 +1252,22 @@ static bool cmd_menu(struct command_list *list, void *selection_p)
 	 */
 	bool result = false;
 
+	/*
+	 * RVIP: no movement in the Enter menu (steps and runs have their own
+	 * keys); those entries sit at the end of their list.
+	 */
+	int n = list->len;
+	while (n > 0 && (list->list[n - 1].cmd == CMD_WALK
+			|| list->list[n - 1].cmd == CMD_RUN))
+		n--;
+
 	/* Set up the menu */
 	menu_init(&menu, MN_SKIN_SCROLL, &commands_menu);
-	menu_setpriv(&menu, list->len, list->list);
+	menu_setpriv(&menu, n, list->list);
 
 	/* RVIP: letters select, box sized to its content */
 	menu.selections = lower_case;
-	for (i = 0; i < list->len; i++) {
+	for (i = 0; i < n; i++) {
 		struct keypress kp = { EVT_KBRD, list->list[i].key[mode], 0 };
 		char buf[16];
 		int len = strlen(list->list[i].desc) + 3;
@@ -1270,7 +1279,7 @@ static bool cmd_menu(struct command_list *list, void *selection_p)
 		w = MAX(w, len);
 	}
 	area.width = w;
-	area.page_rows = list->len;
+	area.page_rows = n;
 	area.col += 2 * list->menu_level;
 	area.row -= list->menu_level;
 	if (area.row + area.page_rows + 1 > Term->hgt - 1)
