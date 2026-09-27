@@ -879,7 +879,7 @@ static int patched_distances_to_path(const struct pfdistances_patched
  */
 /**
  * RVIP: what a pathfinding walk does when it arrives: keep exploring
- * (CMD_EXPLORE) or take the stairs (CMD_GO_UP / CMD_GO_DOWN).  Set by the
+ * (CMD_EXPLORE) or stop (CMD_GO_UP / CMD_GO_DOWN: stair walks).  Set by the
  * explore and stair commands, kept across the open/tunnel detours (they
  * restart the walk with CMD_PATHFIND to the same destination).
  */
@@ -944,8 +944,8 @@ void path_check_goal(struct loc dest)
 }
 
 /**
- * The walk has reached its destination: take the stairs, or keep
- * exploring unless something new was said on the way.
+ * The walk has reached its destination: keep exploring unless something
+ * new was said on the way (stair walks just stop).
  */
 static void path_arrived(struct player *p)
 {
@@ -953,13 +953,11 @@ static void path_arrived(struct player *p)
 
 	path_goal = CMD_NULL;
 	if (!loc_eq(p->grid, path_goal_dest)) return;
-	if (goal == CMD_GO_DOWN && (square_isdownstairs(cave, p->grid)
-			|| square_ispath(cave, p->grid))) {
-		cmdq_push(CMD_GO_DOWN);
-	} else if (goal == CMD_GO_UP && (square_isupstairs(cave, p->grid)
-			|| square_ispath(cave, p->grid))) {
-		cmdq_push(CMD_GO_UP);
-	} else if (goal == CMD_EXPLORE
+	/*
+	 * RVIP: a stair walk (< / >) only walks there; the player presses
+	 * the key again to take the stairs.
+	 */
+	if (goal == CMD_EXPLORE
 			&& messages_added_count() == path_goal_msgs) {
 		/*
 		 * A target that showed nothing new (its unknown neighbour

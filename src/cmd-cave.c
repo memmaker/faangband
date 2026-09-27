@@ -1665,7 +1665,7 @@ void do_cmd_navigate_down(struct command *cmd)
 		square_isdownstairs, &player->upkeep->path_dest,
 		&player->upkeep->steps);
 	if (player->upkeep->step_count > 0) {
-		/* Take the stairs on arrival */
+		/* Stop on arrival (the goal only keeps the walk off locked doors) */
 		path_set_goal(CMD_GO_DOWN, player->upkeep->path_dest);
 		player->upkeep->running_firststep = true;
 		player->upkeep->running = player->upkeep->step_count;
@@ -1711,7 +1711,7 @@ void do_cmd_navigate_up(struct command *cmd)
 		square_isupstairs, &player->upkeep->path_dest,
 		&player->upkeep->steps);
 	if (player->upkeep->step_count > 0) {
-		/* Take the stairs on arrival */
+		/* Stop on arrival (the goal only keeps the walk off locked doors) */
 		path_set_goal(CMD_GO_UP, player->upkeep->path_dest);
 		player->upkeep->running_firststep = true;
 		player->upkeep->running = player->upkeep->step_count;
