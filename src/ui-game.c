@@ -657,6 +657,18 @@ errr textui_get_cmd(cmd_context context)
 void check_for_player_interrupt(game_event_type type, game_event_data *data,
 								void *user)
 {
+#ifdef USE_WEB
+	/*
+	 * RVIP: pathfinding walks (explore, stair walks, travel) move
+	 * visibly: paint each step, then wait 40 ms.
+	 */
+	if (player->upkeep->running && player->upkeep->steps) {
+		handle_stuff(player);
+		Term_fresh();
+		Term_xtra(TERM_XTRA_DELAY, 40);
+	}
+#endif
+
 	/* Check for "player abort" */
 	if (player->upkeep->running ||
 	    cmd_get_nrepeats() > 0 ||
