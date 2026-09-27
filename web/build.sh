@@ -27,7 +27,7 @@ emcc -O2 -std=gnu99 -DUSE_WEB -DHAVE_MKSTEMP -Isrc -w \
 	-sFORCE_FILESYSTEM -lidbfs.js -sENVIRONMENT=web \
 	--preload-file web/stage/lib@/faangband/lib
 
-cp web/index.html "$HOME/Games/rvip-tools/web/rvip-wm.js" web/faangband.js "$OUT/"
+cp web/index.html web/faangband.js "$OUT/"
 # Shockbolt tiles, lossless WebP (the PNG is 18 MB); drawn nearest-neighbour
 [ web/tiles.webp -nt lib/tiles/shockbolt/64x64.png ] || \
 	cwebp -quiet -lossless -z 9 -exact lib/tiles/shockbolt/64x64.png -o web/tiles.webp
