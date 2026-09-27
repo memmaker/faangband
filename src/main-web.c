@@ -108,6 +108,11 @@ EM_JS(void, js_color, (int i, int r, int g, int b), {
 	Module.fa.color(i, r, g, b);
 });
 
+/* The page's tile choice (Tiles button): 1 Shockbolt, 0 none (text) */
+EM_JS(int, js_tiles_wanted, (void), {
+	return Module.fa.tilesWanted();
+});
+
 EM_JS(int, js_term_cols, (int t), {
 	return Module.fa.termCols(t);
 });
@@ -162,6 +167,35 @@ void web_sync_files(void)
 	js_sync();
 }
 
+
+/* Tiles button: the new choice, applied at the next command prompt */
+static int web_want_tiles = -1;
+
+EMSCRIPTEN_KEEPALIVE void web_set_tiles(int on)
+{
+	web_want_tiles = on ? 1 : 0;
+}
+
+/*
+ * Switch the map between Shockbolt tiles and text.  The game decides what
+ * each grid shows (graf-*.prf or font prefs via reset_visuals); the page
+ * only draws what it is sent.
+ */
+static void web_use_tiles(bool on)
+{
+	graphics_mode *gm = get_graphics_mode(on ? WEB_TILESET : GRAPHICS_NONE);
+
+	if (!gm) return;
+	current_graphics_mode = gm;
+	use_graphics = gm->grafID;
+	tile_width = (use_graphics == GRAPHICS_NONE) ? 1 : 2;
+	tile_height = 1;
+	if (use_graphics != GRAPHICS_NONE)
+		js_tileset(gm->cell_width, gm->cell_height,
+			gm->overdrawRow, gm->overdrawMax);
+	web_term[0].dblh_hook = (use_graphics != GRAPHICS_NONE
+		&& gm->overdrawRow) ? is_dh_tile : NULL;
+}
 
 /* Called from JS when the page is hidden, and every two minutes */
 EMSCRIPTEN_KEEPALIVE void web_request_save(void)
@@ -258,6 +292,22 @@ static int web_pump(void)
 			Term_keypress((keycode_t) k, (uint8_t) js_event_mods());
 		}
 		got = 1;
+	}
+
+	/* Tiles on/off: only at the command prompt, then redraw everything */
+	if (web_want_tiles >= 0 && inkey_flag && character_generated && !got) {
+		bool on = web_want_tiles == 1;
+
+		web_want_tiles = -1;
+		if (on != (use_graphics != GRAPHICS_NONE)) {
+			ui_event evt = EVENT_EMPTY;
+
+			web_use_tiles(on);
+			if (character_dungeon) reset_visuals(true);
+			evt.type = EVT_RESIZE;
+			Term_event_push(&evt);
+			got = 1;
+		}
 	}
 
 	/* Safe autosave: only while waiting for a command */
@@ -411,18 +461,7 @@ errr init_web(int argc, char **argv)
 	(void) argv;
 
 	/* Shockbolt tiles, one tile = 2 x 1 text cells of the map term */
-	if (init_graphics_modes()) {
-		graphics_mode *gm = get_graphics_mode(WEB_TILESET);
-
-		if (gm) {
-			current_graphics_mode = gm;
-			use_graphics = gm->grafID;
-			tile_width = 2;
-			tile_height = 1;
-			js_tileset(gm->cell_width, gm->cell_height,
-				gm->overdrawRow, gm->overdrawMax);
-		}
-	}
+	if (init_graphics_modes()) web_use_tiles(js_tiles_wanted() != 0);
 
 	event_add_handler(EVENT_SOUND, web_sound, NULL);
 
@@ -449,7 +488,7 @@ errr init_web(int argc, char **argv)
 		t->text_hook = Term_text_web;
 		t->pict_hook = Term_pict_web;
 		t->higher_pict = true;
-		if (!i && current_graphics_mode
+		if (!i && use_graphics != GRAPHICS_NONE
 				&& current_graphics_mode->overdrawRow)
 			t->dblh_hook = is_dh_tile;
 
