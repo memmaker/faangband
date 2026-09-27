@@ -335,7 +335,7 @@ additions: same-set stand-ins); report the numbers. One set, never mix.
   `memmaker`, branch `main`), history without `rvip/`, `web/shots/`,
   `LESSONS.md` (`git filter-repo --refs 0d85203a0..main`, so upstream
   hashes stay); cloud history with the bundle = private
-  **memmaker/faangband-cloud**. Upstream
+  **memmaker/faangband-cloud** (deleted 2026-09-27). Upstream
   NickMcConnell/FAangband `main` @ `0d85203`; README with the compare view.
 - **Live**: https://ruzzoli.de/roguelikes/faangband/ (`sh web/build.sh && sh
   web/deploy.sh`, guard now fetches `memmaker`). Card on
