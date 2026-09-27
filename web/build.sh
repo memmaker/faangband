@@ -22,7 +22,7 @@ emcc -O2 -std=gnu99 -DUSE_WEB -DHAVE_MKSTEMP -Isrc -w \
 	-o "$OUT/faangband-core.js" \
 	-sASYNCIFY -sASYNCIFY_STACK_SIZE=131072 -sSTACK_SIZE=2097152 \
 	-sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=128MB \
-	-sEXPORTED_FUNCTIONS=_main,_web_request_save \
+	-sEXPORTED_FUNCTIONS=_main,_web_request_save,_web_set_tiles \
 	-sEXPORTED_RUNTIME_METHODS=FS,IDBFS,HEAP32,addRunDependency,removeRunDependency \
 	-sFORCE_FILESYSTEM -lidbfs.js -sENVIRONMENT=web \
 	--preload-file web/stage/lib@/faangband/lib
@@ -39,6 +39,9 @@ for f in $(sed -n 's/^sound:[A-Z_0-9]*://p' lib/customize/sound.prf | tr ' ' '\n
 	cp "lib/sounds/$f.mp3" "$OUT/sounds/"
 done
 cp web/music/new_town.ogg "$OUT/music/"
+# Font choosers: the index page's fonts/*.woff (loaded from ../fonts/)
+FONTS="${RVIP_INDEX:-$HOME/Games/roguelikes-index}/fonts"
+(ls "$FONTS" 2>/dev/null | sed -n 's/\.woff$//p') | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().split()))' > "$OUT/fonts.json"
 python3 web/make-help.py > "$OUT/help.html"
 rm -rf web/stage
 ls -la "$OUT"
