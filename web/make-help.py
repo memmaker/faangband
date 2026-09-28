@@ -27,7 +27,7 @@ esc = html.escape
 WEB = '''<ul>
 <li><strong>Windows:</strong> the tiled map (the game's own Shockbolt tiles); Inventory, Visible monsters and Visible items on the right; Messages along the bottom. Recall and Equipment are in the <em>Windows</em> menu. Menus, stores and help pop up over the map.</li>
 <li><strong>Resize windows</strong> by dragging the gaps between them. <em>Reset windows</em> puts everything back.</li>
-<li><strong>Zoom:</strong> <em>Zoom −</em> / <em>Zoom +</em> change the size of the map tiles. Hover over a text window's title to show its <em>A−</em> / <em>A+</em> buttons; click a title to rename the window.</li>
+<li><strong>Zoom:</strong> <em>A−</em> / <em>A+</em> on the Map title bar (shown on hover) change the size of the map tiles. Hover over a text window's title to show its <em>A−</em> / <em>A+</em> buttons; click a title to rename the window.</li>
 <li><strong>Sound</strong> and <strong>Music</strong> are off until you switch them on in the top bar: the game's own sound events with the Dubtrain Angband Sound Pack that ships with FAangband, and town music.</li>
 <li><strong>Keys:</strong> the arrow keys or the numeric keypad move you; Shift+arrow runs. <em>Center map</em> and <em>auto_more</em> are on by default here (change them under <kbd>=</kbd>).</li>
 <li>Browsers keep a few shortcuts for themselves (<kbd>Ctrl+W</kbd>, <kbd>Ctrl+T</kbd>, <kbd>Ctrl+N</kbd>, and <kbd>Cmd</kbd> shortcuts on a Mac), so those never reach the game. <kbd>Ctrl+S</kbd> and <kbd>Ctrl+X</kbd> do.</li>
